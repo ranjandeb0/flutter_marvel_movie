@@ -1,7 +1,12 @@
+// import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_first/single_movie.dart';
+import 'package:intl/intl.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'model.dart';
+import 'globar_movie_app_bar.dart';
+import 'movie_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -66,29 +71,16 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title, required this.movies});
+  MyHomePage({super.key, required this.title, required this.movies});
 
   final String title;
   final List<MovieModel> movies;
+  final TextEditingController _date = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        centerTitle: true,
-        toolbarHeight: 90.0,
-        title: Image.asset('assets/images/Marvel-Logo.jpg', height: 45.0),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset(
-              'assets/images/Profile-ring-small.png',
-              height: 70,
-            ),
-          )
-        ],
-      ),
+      appBar: const MovieAppBar(),
       body: DefaultTextStyle(
         style: Theme.of(context).textTheme.bodyMedium!,
         child: DefaultTabController(
@@ -117,9 +109,36 @@ class MyHomePage extends StatelessWidget {
                     MovieListView(
                         movies:
                             movies.where((movie) => !movie.watchList).toList()),
-                    MovieListView(
-                        movies:
-                            movies.where((movie) => movie.watchList).toList()),
+                    Column(
+                      children: [
+                        TextField(
+                          controller: _date,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.calendar_month_rounded),
+                            labelText: "Select Date",
+                          ),
+                          onTap: () async {
+                            DateTime? datePicked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(DateTime.now().year + 1000));
+
+                            if (datePicked != null) {
+                              _date.text =
+                                  DateFormat('dd/MM/yyyy').format(datePicked);
+                            }
+                          },
+                        ),
+                        Expanded(
+                          child: MovieListView(
+                              movies: movies
+                                  .where((movie) => movie.watchList)
+                                  .toList()),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               )
@@ -167,7 +186,14 @@ class MovieTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SingleMovie(
+                      movie: movie,
+                    )));
+      },
       child: Container(
         height: 130,
         color: Theme.of(context).colorScheme.secondaryContainer,
