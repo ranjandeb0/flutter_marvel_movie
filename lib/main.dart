@@ -26,14 +26,15 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           background: Colors.black,
           primary: Color(0xFFED1B24),
+          onPrimary: Colors.white,
           onBackground: Color.fromRGBO(255, 255, 255, 0.5),
           secondaryContainer: Color.fromRGBO(217, 217, 217, 0.1),
         ),
         useMaterial3: true,
         textTheme: const TextTheme(
           bodyMedium: TextStyle(
-            color: Color.fromRGBO(255, 255, 255, 0.5),
             fontSize: 14,
+            color: Color.fromRGBO(255, 255, 255, 0.50),
             fontWeight: FontWeight.w500,
           ),
           bodySmall: TextStyle(

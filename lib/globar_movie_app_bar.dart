@@ -12,7 +12,7 @@ class MovieAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      backgroundColor: Theme.of(context).colorScheme.background,
       centerTitle: true,
       toolbarHeight: 90.0,
       title: Image.asset('assets/images/Marvel-Logo.jpg', height: 45.0),
