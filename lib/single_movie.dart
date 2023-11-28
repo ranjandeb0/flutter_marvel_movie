@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_first/movie_model.dart';
 
-class SingleMovie extends StatelessWidget {
+class SingleMovie extends StatefulWidget {
   final MovieModel movie;
+
+  const SingleMovie({super.key, required this.movie});
+
+  @override
+  State<SingleMovie> createState() => _SingleMovieState();
+}
+
+class _SingleMovieState extends State<SingleMovie>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
+
   final double _appBarHeight = 476;
 
-  SingleMovie({super.key, required this.movie});
+  bool _expanded = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,12 +32,18 @@ class SingleMovie extends StatelessWidget {
                   _appBarHeight - kToolbarHeight,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeIn));
+              setState(() {
+                _expanded = false;
+              });
             } else if (offset > _scrollController.offset &&
                 _scrollController.offset < _appBarHeight) {
               Future.microtask(() {
                 _scrollController.animateTo(0,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeIn);
+              });
+              setState(() {
+                _expanded = true;
               });
             }
           });
@@ -42,7 +59,18 @@ class SingleMovie extends StatelessWidget {
               collapsedHeight: 60,
               stretch: true,
               pinned: true,
-              title: Text(movie.title ?? "No title found"),
+              title: AnimatedOpacity(
+                opacity: _expanded ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 500),
+                child: Text(
+                  widget.movie.title ?? "No title found",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(fontSize: 18),
+                ),
+              ),
+
               // floating: true,
               flexibleSpace: Stack(
                 children: [
@@ -59,6 +87,53 @@ class SingleMovie extends StatelessWidget {
                       ),
                     ),
                   ),
+                  AnimatedOpacity(
+                    opacity: !_expanded ? 0.0 : 1.0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 56, left: 30, right: 30, bottom: 12),
+                      child: Stack(
+                        clipBehavior: Clip.hardEdge,
+                        fit: StackFit.expand,
+                        children: [
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: Text(
+                              widget.movie.title ?? "No title found",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium!
+                                  .copyWith(fontSize: 22),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Opacity(
+                              opacity: 0.7,
+                              child: MaterialButton(
+                                onPressed: () {},
+                                child:
+                                    Image.asset("assets/images/play_btn.png"),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  AnimatedOpacity(
+                    opacity: _expanded ? 0.0 : 1.0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Container(
+                      color: Colors.black,
+                    ),
+                  )
                 ],
               ),
             ),
@@ -104,7 +179,7 @@ class SingleMovie extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
-                      movie.description ??
+                      widget.movie.description ??
                           "The series is a blend of classic television and the Marvel Cinematic Universe in which Wanda Maximoff and Vision—two super-powered beings living idealized suburban lives—begin to suspect that everything is not as it seems.",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
@@ -156,11 +231,12 @@ class SingleMovie extends StatelessWidget {
   }
 
   Widget _thumbnail() {
-    if (movie.thumbnail?["path"] != null &&
-        !movie.thumbnail!["path"]!.endsWith('image_not_available')) {
+    if (widget.movie.thumbnail?["path"] != null &&
+        !widget.movie.thumbnail!["path"]!.endsWith('image_not_available')) {
       return FadeInImage.assetNetwork(
         placeholder: 'assets/images/placeholder.jpg',
-        image: '${movie.thumbnail?["path"]}.${movie.thumbnail?["extension"]}',
+        image:
+            '${widget.movie.thumbnail?["path"]}.${widget.movie.thumbnail?["extension"]}',
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.cover,
